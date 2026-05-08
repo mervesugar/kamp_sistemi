@@ -542,6 +542,47 @@ class Graph:
     def all_nodes(self):
         return list(self._adj.keys())
 
+    def dijkstra(self, start, end):
+        """Dijkstra En Kısa Yol Algoritması. 
+        Döndürür: (mesafe, yol_listesi)"""
+        import heapq
+        if start not in self._adj or end not in self._adj:
+            return float('inf'), []
+
+        distances = {node: float('inf') for node in self._adj}
+        distances[start] = 0
+        previous = {node: None for node in self._adj}
+        
+        pq = [(0, start)]
+        
+        while pq:
+            current_dist, current_node = heapq.heappop(pq)
+            
+            if current_node == end:
+                break
+                
+            if current_dist > distances[current_node]:
+                continue
+                
+            for neighbor, weight in self._adj[current_node].items():
+                distance = current_dist + weight
+                
+                if distance < distances[neighbor]:
+                    distances[neighbor] = distance
+                    previous[neighbor] = current_node
+                    heapq.heappush(pq, (distance, neighbor))
+                    
+        path = []
+        curr = end
+        while curr is not None:
+            path.insert(0, curr)
+            curr = previous[curr]
+            
+        if distances[end] == float('inf'):
+            return float('inf'), []
+            
+        return distances[end], path
+
     def __len__(self):
         return len(self._adj)
 

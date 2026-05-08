@@ -2,55 +2,55 @@
   "ziyaretciler": [
     {
       "ziyaretci_id": "Z0000",
-      "ad": "Merve",
-      "soyad": "Kaya",
-      "telefon": "05144070665",
+      "ad": "Ayşe",
+      "soyad": "Arslan",
+      "telefon": "05142223048",
       "oncelik": 0
     },
     {
       "ziyaretci_id": "Z0001",
-      "ad": "Mustafa",
-      "soyad": "Aydın",
-      "telefon": "05192359026",
-      "oncelik": 5
-    },
-    {
-      "ziyaretci_id": "Z0002",
-      "ad": "Ayşe",
-      "soyad": "Aydın",
-      "telefon": "05449828928",
+      "ad": "Mehmet",
+      "soyad": "Yıldız",
+      "telefon": "05445171684",
       "oncelik": 0
     },
     {
+      "ziyaretci_id": "Z0002",
+      "ad": "Zeynep",
+      "soyad": "Demir",
+      "telefon": "05267762441",
+      "oncelik": 5
+    },
+    {
       "ziyaretci_id": "Z0003",
-      "ad": "Elif",
-      "soyad": "Çelik",
-      "telefon": "05503108515",
+      "ad": "Mustafa",
+      "soyad": "Arslan",
+      "telefon": "05131036913",
       "oncelik": 0
     },
     {
       "ziyaretci_id": "Z0004",
-      "ad": "Ali",
-      "soyad": "Arslan",
-      "telefon": "05231767970",
+      "ad": "Merve",
+      "soyad": "Koç",
+      "telefon": "05237265590",
       "oncelik": 0
     }
   ],
   "alanlar": [
     {
       "alan_id": "A000",
-      "alan_tipi": "Çadır",
-      "kapasite": 4,
-      "fiyat": 150,
-      "rezervasyon_sayisi": 0,
-      "bakimda": true
+      "alan_tipi": "Karavan",
+      "kapasite": 6,
+      "fiyat": 350,
+      "rezervasyon_sayisi": 2,
+      "bakimda": false
     },
     {
       "alan_id": "A001",
       "alan_tipi": "Bungalov",
       "kapasite": 2,
       "fiyat": 600,
-      "rezervasyon_sayisi": 4,
+      "rezervasyon_sayisi": 2,
       "bakimda": false
     },
     {
@@ -58,117 +58,168 @@
       "alan_tipi": "Bungalov",
       "kapasite": 6,
       "fiyat": 600,
-      "rezervasyon_sayisi": 0,
+      "rezervasyon_sayisi": 2,
       "bakimda": false
     },
     {
       "alan_id": "A003",
-      "alan_tipi": "Karavan",
-      "kapasite": 4,
-      "fiyat": 350,
-      "rezervasyon_sayisi": 4,
+      "alan_tipi": "Çadır",
+      "kapasite": 6,
+      "fiyat": 150,
+      "rezervasyon_sayisi": 2,
       "bakimda": false
     },
     {
       "alan_id": "A004",
       "alan_tipi": "Çadır",
-      "kapasite": 4,
+      "kapasite": 6,
       "fiyat": 150,
       "rezervasyon_sayisi": 2,
       "bakimda": false
     }
   ],
-  "ekipmanlar": [],
+  "ekipmanlar": [
+    {
+      "ekipman_id": "E000",
+      "ad": "Çadır (2 Kişilik)",
+      "toplam_stok": 10,
+      "mevcut_stok": 7
+    },
+    {
+      "ekipman_id": "E001",
+      "ad": "Uyku Tulumu",
+      "toplam_stok": 10,
+      "mevcut_stok": 6
+    },
+    {
+      "ekipman_id": "E002",
+      "ad": "Kamp Sandalyesi",
+      "toplam_stok": 10,
+      "mevcut_stok": 6
+    },
+    {
+      "ekipman_id": "E003",
+      "ad": "Fener",
+      "toplam_stok": 10,
+      "mevcut_stok": 6
+    }
+  ],
   "rezervasyonlar": [
     {
       "rezervasyon_id": "R00000",
       "ziyaretci_id": "Z0004",
-      "alan_id": "A001",
-      "giris_tarihi": "2025-07-01",
-      "cikis_tarihi": "2025-07-07",
-      "toplam_ucret": 3600,
-      "aktif": false
-    },
-    {
-      "rezervasyon_id": "R00001",
-      "ziyaretci_id": "Z0001",
       "alan_id": "A003",
       "giris_tarihi": "2025-01-09",
       "cikis_tarihi": "2025-01-16",
-      "toplam_ucret": 2450,
-      "aktif": true
-    },
-    {
-      "rezervasyon_id": "R00002",
-      "ziyaretci_id": "Z0001",
-      "alan_id": "A003",
-      "giris_tarihi": "2025-01-14",
-      "cikis_tarihi": "2025-01-19",
-      "toplam_ucret": 1750,
-      "aktif": true
-    },
-    {
-      "rezervasyon_id": "R00003",
-      "ziyaretci_id": "Z0002",
-      "alan_id": "A003",
-      "giris_tarihi": "2025-07-27",
-      "cikis_tarihi": "2025-07-30",
       "toplam_ucret": 1050,
       "aktif": true
     },
     {
-      "rezervasyon_id": "R00004",
-      "ziyaretci_id": "Z0002",
-      "alan_id": "A001",
-      "giris_tarihi": "2025-07-06",
-      "cikis_tarihi": "2025-07-07",
+      "rezervasyon_id": "R00001",
+      "ziyaretci_id": "Z0003",
+      "alan_id": "A004",
+      "giris_tarihi": "2025-06-14",
+      "cikis_tarihi": "2025-06-18",
       "toplam_ucret": 600,
       "aktif": true
     },
     {
-      "rezervasyon_id": "R00005",
+      "rezervasyon_id": "R00002",
+      "ziyaretci_id": "Z0004",
+      "alan_id": "A002",
+      "giris_tarihi": "2025-03-16",
+      "cikis_tarihi": "2025-03-17",
+      "toplam_ucret": 600,
+      "aktif": true
+    },
+    {
+      "rezervasyon_id": "R00003",
+      "ziyaretci_id": "Z0000",
+      "alan_id": "A003",
+      "giris_tarihi": "2025-11-14",
+      "cikis_tarihi": "2025-11-18",
+      "toplam_ucret": 600,
+      "aktif": true
+    },
+    {
+      "rezervasyon_id": "R00004",
       "ziyaretci_id": "Z0003",
+      "alan_id": "A001",
+      "giris_tarihi": "2025-12-27",
+      "cikis_tarihi": "2026-01-03",
+      "toplam_ucret": 4200,
+      "aktif": true
+    },
+    {
+      "rezervasyon_id": "R00005",
+      "ziyaretci_id": "Z0001",
       "alan_id": "A004",
-      "giris_tarihi": "2025-06-28",
-      "cikis_tarihi": "2025-07-05",
+      "giris_tarihi": "2025-01-14",
+      "cikis_tarihi": "2025-01-21",
       "toplam_ucret": 1050,
       "aktif": true
     },
     {
       "rezervasyon_id": "R00006",
-      "ziyaretci_id": "Z0000",
-      "alan_id": "A003",
-      "giris_tarihi": "2025-10-07",
-      "cikis_tarihi": "2025-10-11",
-      "toplam_ucret": 1400,
+      "ziyaretci_id": "Z0002",
+      "alan_id": "A000",
+      "giris_tarihi": "2025-02-24",
+      "cikis_tarihi": "2025-02-25",
+      "toplam_ucret": 350,
       "aktif": true
     },
     {
       "rezervasyon_id": "R00007",
-      "ziyaretci_id": "Z0003",
+      "ziyaretci_id": "Z0004",
       "alan_id": "A001",
-      "giris_tarihi": "2025-06-15",
-      "cikis_tarihi": "2025-06-21",
+      "giris_tarihi": "2025-08-11",
+      "cikis_tarihi": "2025-08-17",
       "toplam_ucret": 3600,
-      "aktif": true
+      "aktif": false
     },
     {
       "rezervasyon_id": "R00008",
       "ziyaretci_id": "Z0003",
-      "alan_id": "A001",
-      "giris_tarihi": "2025-05-06",
-      "cikis_tarihi": "2025-05-12",
-      "toplam_ucret": 3600,
+      "alan_id": "A000",
+      "giris_tarihi": "2025-04-24",
+      "cikis_tarihi": "2025-04-25",
+      "toplam_ucret": 350,
       "aktif": true
     },
     {
       "rezervasyon_id": "R00009",
-      "ziyaretci_id": "Z0004",
-      "alan_id": "A004",
-      "giris_tarihi": "2025-12-10",
-      "cikis_tarihi": "2025-12-12",
-      "toplam_ucret": 300,
-      "aktif": false
+      "ziyaretci_id": "Z0003",
+      "alan_id": "A002",
+      "giris_tarihi": "2025-11-16",
+      "cikis_tarihi": "2025-11-17",
+      "toplam_ucret": 600,
+      "aktif": true
     }
-  ]
+  ],
+  "graf_yollari": {
+    "A000": {
+      "A001": 7,
+      "A004": 39
+    },
+    "A001": {
+      "A000": 7,
+      "A002": 43,
+      "A004": 93,
+      "A003": 27
+    },
+    "A002": {
+      "A001": 43,
+      "A003": 38
+    },
+    "A003": {
+      "A002": 38,
+      "A004": 10,
+      "A001": 27
+    },
+    "A004": {
+      "A000": 39,
+      "A001": 93,
+      "A003": 10
+    }
+  }
 }

@@ -13,6 +13,7 @@ ISIMLER = ["Ahmet","Fatma","Mehmet","Ayşe","Ali","Zeynep","Mustafa","Elif","Hü
 SOYADLAR = ["Yılmaz","Kaya","Demir","Çelik","Şahin","Yıldız","Öztürk","Aydın","Arslan","Koç"]
 TIPLER = ["Çadır","Karavan","Bungalov"]
 FIYATLAR = {"Çadır":150,"Karavan":350,"Bungalov":600}
+EKIPMAN_TURLERI = ["Çadır (2 Kişilik)", "Uyku Tulumu", "Kamp Sandalyesi", "Fener", "Kamp Masası", "Izgara", "Kamp Ocağı", "Minder", "Çadır (4 Kişilik)", "Bisiklet"]
 
 def uret(rezervasyon_sayisi: int):
     n_alan = max(5, rezervasyon_sayisi // 10)
@@ -54,13 +55,46 @@ def uret(rezervasyon_sayisi: int):
     for a in alanlar:
         a["rezervasyon_sayisi"] = alan_rez.get(a["alan_id"], 0)
 
+    n_ekipman = min(len(EKIPMAN_TURLERI), max(4, rezervasyon_sayisi // 10))
+    ekipmanlar = []
+    for i in range(n_ekipman):
+        ad = EKIPMAN_TURLERI[i]
+        toplam_stok = max(10, rezervasyon_sayisi // 2)
+        odunc = random.randint(0, int(toplam_stok * 0.4))
+        mevcut_stok = toplam_stok - odunc
+        ekipmanlar.append({
+            "ekipman_id": f"E{i:03d}",
+            "ad": ad,
+            "toplam_stok": toplam_stok,
+            "mevcut_stok": mevcut_stok
+        })
+
+    # Graf Komşuluklarını Üret (Her alan en az 1 alana bağlı)
+    graf_yollari = {a["alan_id"]: {} for a in alanlar}
+    for i in range(len(alanlar)):
+        u = alanlar[i]["alan_id"]
+        if i < len(alanlar) - 1:
+            v = alanlar[i+1]["alan_id"]
+            mesafe = random.randint(5, 50)
+            graf_yollari[u][v] = mesafe
+            graf_yollari[v][u] = mesafe
+        
+        # Ekstra 1-2 rastgele bağlantı
+        for _ in range(random.randint(0, 2)):
+            v = random.choice(alanlar)["alan_id"]
+            if u != v and v not in graf_yollari[u]:
+                mesafe = random.randint(10, 100)
+                graf_yollari[u][v] = mesafe
+                graf_yollari[v][u] = mesafe
+
     veri = {"ziyaretciler": ziyaretciler, "alanlar": alanlar,
-            "ekipmanlar": [], "rezervasyonlar": rezervasyonlar}
+            "ekipmanlar": ekipmanlar, "rezervasyonlar": rezervasyonlar,
+            "graf_yollari": graf_yollari}
 
     dosya = os.path.join(CIKTI, f"veri_{rezervasyon_sayisi}.json")
     with open(dosya, "w", encoding="utf-8") as f:
         json.dump(veri, f, ensure_ascii=False, indent=2)
-    print(f"✅ veri_{rezervasyon_sayisi}.json  |  {n_ziyaretci} ziyaretçi, {n_alan} alan, {rezervasyon_sayisi} rezervasyon")
+    print(f"veri_{rezervasyon_sayisi}.json  |  {n_ziyaretci} ziyaretci, {n_alan} alan, {rezervasyon_sayisi} rezervasyon, {len(ekipmanlar)} ekipman turu")
 
 if __name__ == "__main__":
     print("Örnek veri setleri üretiliyor...\n")

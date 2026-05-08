@@ -144,6 +144,18 @@ class KampSistemi:
     def musait_alanlar(self):
         return [a for a in self.tum_alanlar() if not a.bakimda]
 
+    def yol_tarifi_al(self, baslangic_id, bitis_id):
+        return self.alan_grafi.dijkstra(baslangic_id, bitis_id)
+
+    def komsu_ekle(self, aid1, aid2, mesafe=1):
+        a1 = self.alan_map.get(aid1)
+        a2 = self.alan_map.get(aid2)
+        if a1 and a2:
+            self.alan_grafi.add_edge(aid1, aid2, mesafe)
+            self._kaydet()
+            return True
+        return False
+
     # ════════════════════════════════════════════════
     # EKİPMAN
     # ════════════════════════════════════════════════
@@ -499,6 +511,8 @@ class KampSistemi:
                 json.dump([e.to_dict() for e in self.tum_ekipmanlar()], f, ensure_ascii=False, indent=2)
             with open(os.path.join(KAYIT_DIR, "rezervasyonlar.json"), "w", encoding="utf-8") as f:
                 json.dump([r.to_dict() for r in self.tum_rezervasyonlar()], f, ensure_ascii=False, indent=2)
+            with open(os.path.join(KAYIT_DIR, "graf_yollari.json"), "w", encoding="utf-8") as f:
+                json.dump(self.alan_grafi._adj, f, ensure_ascii=False, indent=2)
         except Exception as ex:
             print(f"Kayıt hatası: {ex}")
 
@@ -530,3 +544,7 @@ class KampSistemi:
             r = Rezervasyon.from_dict(d)
             self.rezervasyon_map.insert(r.rezervasyon_id, r)
             self.rezervasyon_bst.insert(r.giris_tarihi, r.rezervasyon_id)
+
+        graf_data = _oku("graf_yollari.json")
+        if isinstance(graf_data, dict):
+            self.alan_grafi._adj = graf_data

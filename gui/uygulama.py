@@ -26,10 +26,10 @@ from PyQt6.QtWidgets import (
     QDoubleSpinBox, QTableWidget, QTableWidgetItem,
     QHeaderView, QGroupBox, QTextEdit, QMessageBox,
     QFrame, QSplitter, QScrollArea, QDateEdit,
-    QTreeWidget, QTreeWidgetItem,
+    QTreeWidget, QTreeWidgetItem, QGraphicsScene, QGraphicsView
 )
 from PyQt6.QtCore import Qt, QDate, QTimer, QSize
-from PyQt6.QtGui import QFont, QColor, QPalette, QBrush
+from PyQt6.QtGui import QFont, QColor, QPalette, QBrush, QPainter, QPen
 
 # ── RENKLER ──────────────────────────────────────────────────────────
 YESIL       = "#2d6a4f"
@@ -445,14 +445,57 @@ class AnaUygulama(QMainWindow):
 
         sag = QVBoxLayout()
         self.a_tablo = tablo_olustur(["ID", "Tip", "Kapasite", "Fiyat (₺)", "Rezervasyon", "Durum"])
-        self.a_tablo.clicked.connect(self._alan_sec)
         sag.addWidget(self.a_tablo)
+
+        # GRAF / DİJKSTRA PANELİ
+        graf_grup = QGroupBox("📍 Yol Tarifi & Graf Yönetimi (Dijkstra En Kısa Yol)")
+        graf_layout = QHBoxLayout()
+        
+        yol_layout = QFormLayout()
+        self.yol_baslangic = QComboBox()
+        self.yol_bitis = QComboBox()
+        yol_layout.addRow("Nereden:", self.yol_baslangic)
+        yol_layout.addRow("Nereye:", self.yol_bitis)
+        btn_yol = QPushButton("🚀 En Kısa Yolu Bul")
+        btn_yol.setObjectName("btn_blue")
+        btn_yol.clicked.connect(self._yol_tarifi_bul)
+        yol_layout.addRow("", btn_yol)
+        
+        komsu_layout = QFormLayout()
+        self.komsu1 = QComboBox()
+        self.komsu2 = QComboBox()
+        self.komsu_mesafe = QSpinBox()
+        self.komsu_mesafe.setRange(1, 9999)
+        self.komsu_mesafe.setValue(1)
+        komsu_layout.addRow("Alan 1:", self.komsu1)
+        komsu_layout.addRow("Alan 2:", self.komsu2)
+        komsu_layout.addRow("Mesafe:", self.komsu_mesafe)
+        btn_komsu = QPushButton("🔗 Komşu Ekle")
+        btn_komsu.setObjectName("btn_orange")
+        btn_komsu.clicked.connect(self._komsu_ekle)
+        komsu_layout.addRow("", btn_komsu)
+        
+        self.yol_sonuc = QTextEdit()
+        self.yol_sonuc.setReadOnly(True)
+        self.yol_sonuc.setMaximumHeight(80)
+        self.yol_sonuc.setPlaceholderText("Yol tarifi sonucu burada görünecek...")
+        
+        graf_layout.addLayout(yol_layout)
+        graf_layout.addLayout(komsu_layout)
+        
+        graf_ana = QVBoxLayout()
+        graf_ana.addLayout(graf_layout)
+        graf_ana.addWidget(self.yol_sonuc)
+        graf_grup.setLayout(graf_ana)
+        
+        sag.addWidget(graf_grup)
 
         layout.addLayout(sol, 1)
         layout.addLayout(sag, 3)
 
         self.sekmeler.addTab(w, "🏕️ Alanlar")
         self._alan_listele()
+        self._alan_combo_yenile()
 
     def _alan_listele(self):
         self.a_tablo.setRowCount(0)
@@ -478,6 +521,8 @@ class AnaUygulama(QMainWindow):
         a = self.sistem.alan_ekle(tip, kap, fiyat)
         self._alan_listele()
         self._agac_guncelle()
+        self._alan_combo_yenile()
+        self._rezervasyon_listele()  # Otomatik rezervasyon olursa tablo güncellensin
         self._durum(f"Alan eklendi: {a.alan_id}  ({tip})")
 
     def _alan_sil(self):
@@ -491,6 +536,7 @@ class AnaUygulama(QMainWindow):
         self.sistem.alan_sil(aid)
         self._alan_listele()
         self._agac_guncelle()
+        self._alan_combo_yenile()
         self._durum(f"Alan silindi: {aid}")
 
     def _bakima_al(self):
@@ -503,6 +549,44 @@ class AnaUygulama(QMainWindow):
         self._alan_listele()
         self._durum(f"{aid} bakıma alındı.")
 
+    def _alan_combo_yenile(self):
+        if not hasattr(self, 'yol_baslangic'): return
+        self.yol_baslangic.clear()
+        self.yol_bitis.clear()
+        self.komsu1.clear()
+        self.komsu2.clear()
+        for a in self.sistem.tum_alanlar():
+            metin = f"{a.alan_id} ({a.alan_tipi})"
+            self.yol_baslangic.addItem(metin, a.alan_id)
+            self.yol_bitis.addItem(metin, a.alan_id)
+            self.komsu1.addItem(metin, a.alan_id)
+            self.komsu2.addItem(metin, a.alan_id)
+
+    def _yol_tarifi_bul(self):
+        bas = self.yol_baslangic.currentData()
+        bit = self.yol_bitis.currentData()
+        if not bas or not bit:
+            return
+        mesafe, yol = self.sistem.yol_tarifi_al(bas, bit)
+        if mesafe == float('inf'):
+            self.yol_sonuc.setText(f"❌ {bas} alanından {bit} alanına gidilebilecek bir yol bulunamadı.")
+        else:
+            yol_metni = " ➔ ".join(yol)
+            self.yol_sonuc.setText(f"✅ En Kısa Yol Bulundu! Toplam Mesafe: {mesafe} birim\n📍 Rota: {yol_metni}")
+
+    def _komsu_ekle(self):
+        a1 = self.komsu1.currentData()
+        a2 = self.komsu2.currentData()
+        mesafe = self.komsu_mesafe.value()
+        if a1 == a2:
+            hata_kutusu(self, "Aynı alana komşu eklenemez.")
+            return
+        if self.sistem.komsu_ekle(a1, a2, mesafe):
+            self._durum(f"Komşu eklendi: {a1} <-> {a2} (Mesafe: {mesafe})")
+            self.yol_sonuc.setText(f"Bağlantı kuruldu: {a1} ve {a2} arası mesafe {mesafe} olarak ayarlandı. Lütfen rotanızı tekrar hesaplayın.")
+        else:
+            hata_kutusu(self, "Komşu eklenirken bir hata oluştu.")
+
     def _bakimdan_cikart(self):
         row = self.a_tablo.currentRow()
         if row < 0:
@@ -511,6 +595,7 @@ class AnaUygulama(QMainWindow):
         aid = self.a_tablo.item(row, 0).text()
         self.sistem.bakimdan_cikart(aid)
         self._alan_listele()
+        self._rezervasyon_listele()  # Otomatik rezervasyon olursa tablo güncellensin
         self._durum(f"{aid} bakımdan çıkarıldı.")
 
     # ════════════════════════════════════════════════
@@ -597,6 +682,8 @@ class AnaUygulama(QMainWindow):
         self.r_alan.clear()
         for a in self.sistem.musait_alanlar():
             self.r_alan.addItem(f"{a.alan_id} — {a.alan_tipi} (₺{a.fiyat:.0f}/gece)", a.alan_id)
+        # Tabloları da yenile ki güncel durum görünsün
+        self._rezervasyon_listele()
 
     def _rezervasyon_listele(self):
         self.r_tablo.setRowCount(0)
@@ -685,10 +772,11 @@ class AnaUygulama(QMainWindow):
         self.e_adet = QSpinBox()
         self.e_adet.setRange(1, 99)
         self.e_adet.setValue(1)
+        self.e_adet.setToolTip("Kaç adet ekipman ödünç verileceğini veya iade alınacağını belirler.")
 
         form_layout.addRow("Ekipman Adı:", self.e_ad)
         form_layout.addRow("Başlangıç Stok:", self.e_stok)
-        form_layout.addRow("İşlem Adedi:", self.e_adet)
+        form_layout.addRow("Ödünç/İade Adedi:", self.e_adet)
 
         btn_ekle = QPushButton("➕  Ekipman Ekle")
         btn_odunc = QPushButton("📤  Ödünç Ver")
@@ -865,41 +953,32 @@ class AnaUygulama(QMainWindow):
         hiy_layout.addWidget(self.agac_widget)
         hiy_layout.addWidget(btn_yenile)
         hiy_grup.setLayout(hiy_layout)
-        ust.addWidget(hiy_grup, 2)
 
         # ══════════════════════════════════════════════════════
-        # SAĞ PANEL — BFS / DFS konsol
+        # SOL PANEL — Graf Çizimi (Alanlar Arası Komşuluklar)
         # ══════════════════════════════════════════════════════
-        gezim_grup = QGroupBox("🔍  Ağaç Gezimi  (BFS & DFS)")
-        gezim_grup.setStyleSheet(
+        graf_grup = QGroupBox("🕸️  Kamp Haritası Grafiği (Ağırlıklı Komşuluklar)")
+        graf_grup.setStyleSheet(
             f"QGroupBox {{ background:{BEYAZ}; }} "
             f"QGroupBox::title {{ color:{YESIL}; font-size:13px; font-weight:bold; }}"
         )
-        gezim_layout = QVBoxLayout()
+        graf_layout = QVBoxLayout()
 
-        btn_bfs = QPushButton("▶  BFS Çalıştır  (Genişlik Öncelikli)")
-        btn_bfs.setObjectName("btn_blue")
-        btn_dfs = QPushButton("▶  DFS Çalıştır  (Derinlik Öncelikli)")
-        btn_dfs.setObjectName("btn_orange")
+        self.graf_scene = QGraphicsScene()
+        self.graf_view = QGraphicsView(self.graf_scene)
+        self.graf_view.setRenderHint(QPainter.RenderHint.Antialiasing)
+        self.graf_view.setMinimumHeight(300)
 
-        self.gezim_metin = QTextEdit()
-        self.gezim_metin.setReadOnly(True)
-        self.gezim_metin.setFont(QFont("Consolas", 11))
-        self.gezim_metin.setStyleSheet(
-            "background:#1e1e1e; color:#e5c07b; "
-            "font-family:'Consolas',monospace; font-size:12px; "
-            "border-radius:6px; border:1px solid #2d6a4f; padding:6px;"
-        )
-        self.gezim_metin.setMinimumHeight(160)
+        btn_graf_yenile = QPushButton("🔄  Haritayı Yenile")
+        btn_graf_yenile.clicked.connect(self._graf_haritasi_guncelle)
 
-        btn_bfs.clicked.connect(self._agac_bfs_calistir)
-        btn_dfs.clicked.connect(self._agac_dfs_calistir)
+        graf_layout.addWidget(self.graf_view)
+        graf_layout.addWidget(btn_graf_yenile)
+        graf_grup.setLayout(graf_layout)
 
-        gezim_layout.addWidget(btn_bfs)
-        gezim_layout.addWidget(btn_dfs)
-        gezim_layout.addWidget(self.gezim_metin)
-        gezim_grup.setLayout(gezim_layout)
-        ust.addWidget(gezim_grup, 1)
+        # Graf sola(2), Ağaç sağa(1)
+        ust.addWidget(graf_grup, 2)
+        ust.addWidget(hiy_grup, 1)
 
         ana.addLayout(ust)
 
@@ -942,6 +1021,7 @@ class AnaUygulama(QMainWindow):
 
     def _agac_guncelle(self):
         """CampTree görünümlerini tümünü yeniler."""
+        self._graf_haritasi_guncelle()
         if not hasattr(self, 'agac_widget'):
             return
 
@@ -1022,27 +1102,51 @@ class AnaUygulama(QMainWindow):
                     [None, None, None, None, renk],
                 )
 
-    def _agac_bfs_calistir(self):
-        """CampTree üzerinde BFS gezimi yapar ve çıktıyı gösterir."""
-        sonuc = self.sistem.mekan_agaci.bfs()
-        satirlar = ["── BFS  (Genişlik Öncelikli Gezim) ──", ""]
-        for seviye, ad in sonuc:
-            girinti = "  " * seviye
-            ok = "└─" if seviye > 0 else "🏕"
-            satirlar.append(f"  {girinti}{ok} {ad}  [Seviye {seviye}]")
-        satirlar += ["", f"Toplam düğüm: {len(sonuc)}"]
-        self.gezim_metin.setPlainText("\n".join(satirlar))
+    def _graf_haritasi_guncelle(self):
+        if not hasattr(self, 'graf_scene'):
+            return
+        self.graf_scene.clear()
 
-    def _agac_dfs_calistir(self):
-        """CampTree üzerinde DFS (pre-order) gezimi yapar ve çıktıyı gösterir."""
-        sonuc = self.sistem.mekan_agaci.dfs()
-        satirlar = ["── DFS  (Derinlik Öncelikli — Pre-order) ──", ""]
-        for i, (seviye, ad) in enumerate(sonuc, 1):
-            girinti = "  " * seviye
-            ok = "└─" if seviye > 0 else "🏕"
-            satirlar.append(f"  {i:>2}. {girinti}{ok} {ad}")
-        satirlar += ["", f"Toplam düğüm: {len(sonuc)}"]
-        self.gezim_metin.setPlainText("\n".join(satirlar))
+        graf = self.sistem.alan_grafi
+        dugumler = graf.all_nodes()
+        if not dugumler:
+            return
+
+        import math
+        merkez_x, merkez_y = 0, 0
+        yaricap = 160
+        n = len(dugumler)
+        aci_artisi = 2 * math.pi / n if n > 0 else 0
+
+        dugum_kordinatlari = {}
+        for i, dugum in enumerate(dugumler):
+            aci = i * aci_artisi
+            x = merkez_x + math.cos(aci) * yaricap
+            y = merkez_y + math.sin(aci) * yaricap
+            dugum_kordinatlari[dugum] = (x, y)
+
+        cizilen_kenarlar = set()
+        for dugum in dugumler:
+            x1, y1 = dugum_kordinatlari[dugum]
+            for komsu, mesafe in graf._adj[dugum].items():
+                kenar = tuple(sorted([dugum, komsu]))
+                if kenar not in cizilen_kenarlar:
+                    x2, y2 = dugum_kordinatlari[komsu]
+                    self.graf_scene.addLine(x1, y1, x2, y2, QPen(QColor("#2d6a4f"), 2))
+
+                    metin_x = (x1 + x2) / 2
+                    metin_y = (y1 + y2) / 2
+                    txt = self.graf_scene.addText(f"{mesafe}m", QFont("Segoe UI", 9, QFont.Weight.Bold))
+                    txt.setDefaultTextColor(QColor("#c0392b"))
+                    txt.setPos(metin_x - 10, metin_y - 10)
+
+                    cizilen_kenarlar.add(kenar)
+
+        for dugum, (x, y) in dugum_kordinatlari.items():
+            r = 22
+            self.graf_scene.addEllipse(x - r, y - r, 2*r, 2*r, QPen(QColor("#1e1e1e"), 2), QBrush(QColor("#f4a261")))
+            txt = self.graf_scene.addText(dugum, QFont("Segoe UI", 10, QFont.Weight.Bold))
+            txt.setPos(x - 17, y - 12)
 
     # ════════════════════════════════════════════════
     # 5. RAPOR SEKMESİ
@@ -1219,7 +1323,7 @@ class AnaUygulama(QMainWindow):
         with open(dosya, encoding="utf-8") as f:
             veri = json.load(f)
 
-        from models import Ziyaretci, Alan, Rezervasyon
+        from models import Ziyaretci, Alan, Rezervasyon, Ekipman
         self._sistemi_sifirla()
         s = self.sistem
 
@@ -1235,10 +1339,18 @@ class AnaUygulama(QMainWindow):
             if a.bakimda:
                 s.bakim_set.add(a.alan_id)
 
+        for d in veri.get("ekipmanlar", []):
+            e = Ekipman.from_dict(d)
+            s.ekipman_map.insert(e.ekipman_id, e)
+
         for d in veri.get("rezervasyonlar", []):
             r = Rezervasyon.from_dict(d)
             s.rezervasyon_map.insert(r.rezervasyon_id, r)
             s.rezervasyon_bst.insert(r.giris_tarihi, r.rezervasyon_id)
+
+        graf_data = veri.get("graf_yollari", {})
+        if isinstance(graf_data, dict):
+            s.alan_grafi._adj = graf_data
 
         s._heap_yenile()
         s._kaydet()
@@ -1248,7 +1360,8 @@ class AnaUygulama(QMainWindow):
         self.test_sonuc.setText(
             f"{n} rezervasyon yüklendi  |  "
             f"{stats['toplam_ziyaretci']} ziyaretçi  |  "
-            f"{stats['toplam_alan']} alan"
+            f"{stats['toplam_alan']} alan  |  "
+            f"{stats['toplam_ekipman']} ekipman türü"
         )
 
     def _veri_temizle(self):

@@ -1,32 +1,16 @@
 [
   {
     "alan_id": "A000",
-    "alan_tipi": "Çadır",
-    "kapasite": 4,
-    "fiyat": 150,
-    "rezervasyon_sayisi": 0,
-    "bakimda": true
-  },
-  {
-    "alan_id": "A002",
-    "alan_tipi": "Bungalov",
+    "alan_tipi": "Karavan",
     "kapasite": 6,
-    "fiyat": 600,
-    "rezervasyon_sayisi": 0,
+    "fiyat": 350,
+    "rezervasyon_sayisi": 2,
     "bakimda": false
   },
   {
     "alan_id": "A003",
-    "alan_tipi": "Karavan",
-    "kapasite": 4,
-    "fiyat": 350,
-    "rezervasyon_sayisi": 4,
-    "bakimda": false
-  },
-  {
-    "alan_id": "A004",
     "alan_tipi": "Çadır",
-    "kapasite": 4,
+    "kapasite": 6,
     "fiyat": 150,
     "rezervasyon_sayisi": 2,
     "bakimda": false
@@ -36,7 +20,23 @@
     "alan_tipi": "Bungalov",
     "kapasite": 2,
     "fiyat": 600,
-    "rezervasyon_sayisi": 4,
+    "rezervasyon_sayisi": 2,
+    "bakimda": false
+  },
+  {
+    "alan_id": "A004",
+    "alan_tipi": "Çadır",
+    "kapasite": 6,
+    "fiyat": 150,
+    "rezervasyon_sayisi": 2,
+    "bakimda": false
+  },
+  {
+    "alan_id": "A002",
+    "alan_tipi": "Bungalov",
+    "kapasite": 6,
+    "fiyat": 600,
+    "rezervasyon_sayisi": 2,
     "bakimda": false
   }
 ]
